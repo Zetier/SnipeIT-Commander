@@ -1,11 +1,18 @@
 import requests
 import urllib3
+import configparser
 
 # Suppress only the single InsecureRequestWarning from urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+# Read the configuration from the config file
+config = configparser.ConfigParser()
+config.read('.config')
+api_base_url = config.get('api', 'url', fallback='https://default.api.url')  # Default API URL
+
 # Set the API endpoint URL
-api_url = "https://snipeit.yellow.anaconda/api/v1/hardware"
+api_url = f"{api_base_url}"
+
 
 # Read the API token from the file
 with open("api_token.txt", "r") as token_file:
