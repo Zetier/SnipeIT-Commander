@@ -7,12 +7,27 @@ import time
 # stupid youre not secure error supression nothing to see here
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+def get_user_id(api_base_url, api_token):
+    # remove the endpoint part from the base url
+    api_base_url = api_base_url.rsplit('/', 1)[0]
+    api_url = f"{api_base_url}/users/me"
+    try:
+        response = requests.get(api_url, headers={"Authorization": f"Bearer {api_token}"}, verify=False)
+        if response.status_code == 200:
+            return response.json().get("id")
+        else:
+            print(f"Error: Unable to retrieve user ID. Status Code: {response.status_code}")
+            sys.exit(1)
+    except Exception as e:
+        print(f"Error in request: {e}")
+        sys.exit(1)
+
 def read_config():
     config = configparser.ConfigParser()
     config.read('.config')
-    user_id = config.get('user', 'user_id', fallback='1')
     api_base_url = config.get('api', 'url', fallback='https://default.api.url')
     api_token = config.get('api', 'access_token', fallback='')
+    user_id = get_user_id(api_base_url, api_token)
     return user_id, api_base_url, api_token
 
 def checkin(api_base_url, api_token, asset_id, user_id):
