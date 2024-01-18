@@ -4,7 +4,7 @@ import urllib3
 import configparser
 import time
 
-# stupid error supression nothing to see here
+# stupid youre not secure error supression nothing to see here
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def read_config():
@@ -18,18 +18,24 @@ def read_config():
 def checkin(api_base_url, api_token, asset_id, user_id):
     api_url = f"{api_base_url}/{asset_id}/checkin"
     data = {"status_id": 2, "assigned_user": user_id}
-    response = requests.post(api_url, headers={"Authorization": f"Bearer {api_token}"}, json=data, verify=False)
+    try:
+        response = requests.post(api_url, headers={"Authorization": f"Bearer {api_token}"}, json=data, verify=False)
+    except:
+        print("Error in request--are you connected to the right network? did you go to the right place in teh .config?")
+        sys.exit(1)
     if response.status_code == 200:
         print(f"Asset {asset_id} successfully checked in")
     else:
         print(f"Error: Unable to check in asset. Status Code: {response.status_code}, Response: {response.text}")
 
-def checkout(api_base_url, asset_id, user_id):
+def checkout(api_base_url, api_token, asset_id, user_id):
     api_url = f"{api_base_url}/{asset_id}/checkout"
-    with open("api_token.txt", "r") as token_file:
-        api_token = token_file.read().strip()
     data = {"status_id": 2, "checkout_to_type": "user", "assigned_user": user_id}
-    response = requests.post(api_url, headers={"Authorization": f"Bearer {api_token}"}, json=data, verify=False)
+    try:
+        response = requests.post(api_url, headers={"Authorization": f"Bearer {api_token}"}, json=data, verify=False)
+    except:
+        print("Error in request--are you connected to the right network? did you go to the right place in teh .config?")
+        sys.exit(1)
     if response.status_code in [200, 201]:
         print(f"Asset {asset_id} successfully checked out to user ID {user_id}")
     else:
@@ -55,13 +61,15 @@ def status(api_base_url, api_token):
     else:
         print(f"Error: Unable to retrieve assets. Status Code: {response.status_code}")
 
-def watch(api_base_url):
+def watch(api_base_url, api_token):
     api_url = f"{api_base_url}"
-    with open("api_token.txt", "r") as token_file:
-        api_token = token_file.read().strip()
     def fetch_current_status():
         params = {"limit": 50, "offset": 0}
-        response = requests.get(api_url, headers={"Authorization": f"Bearer {api_token}"}, params=params, verify=False)
+        try:
+            response = requests.get(api_url, headers={"Authorization": f"Bearer {api_token}"}, params=params, verify=False)
+        except:
+            print("Error in request--are you connected to the right network? did you go to the right place in teh .config?")
+            sys.exit(1)
         if response.status_code == 200:
             return response.json().get('rows', [])
         else:
@@ -97,7 +105,7 @@ def main():
     user_id, api_base_url, api_token = read_config()
     command = sys.argv[1]
     if command == "watch":
-        watch(api_base_url)
+        watch(api_base_url, api_token)
     elif command == "status":
         status(api_base_url, api_token)
     elif command == "checkin":
@@ -109,7 +117,7 @@ def main():
         if len(sys.argv) != 3:
             print("Usage: python snipey.py checkout <asset_id>")
             sys.exit(1)
-        checkout(api_base_url, sys.argv[2], user_id)
+        checkout(api_base_url, api_token, sys.argv[2], user_id)
     else:
         print("Invalid command")
 
