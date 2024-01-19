@@ -1,55 +1,71 @@
-# Snipey Python Tool
+# Snipey the SnipeIT Commander
 
-This Python tool, "Snipey", is designed to interact with a snipeit API to perform various operations. The tool can perform actions such as `watch`, `status`, `checkin`, `checkout`.
+Snipey is a command-line tool to interact with the Snipe-IT asset management system. It provides functionalities for checking in, checking out, and viewing the status of assets.
 
-## Configuration
+## Features
 
-Before running the script, you need to set up a configuration file called `.config` in the same directory where the script is run. This file should have the following structure:
+- Show the status of all assets
+- Check in an asset
+- Check out an asset
+- Watch for changes in asset status
 
-```
-[user]
-user_id = your_user_id (just a single number, like "1" without the quotes)
+## Pre-requisites 
 
-[api]
-url = your_api_base_url
-access_token = your_api_token
-```
+- Python 3.x
+- Snipe-IT API access with a generated access token
 
-Replace `your_user_id`, `your_api_base_url` and `your_api_token` with appropriate values.
+
+## Installation
+
+- Clone the repository to your local machine
+- Install the required Python packages using pip:
+  ```
+  pip install -r requirements.txt
+  ```
+- Create a `.config` file in the root directory of the cloned repository with the following structure:
+  ```
+  [api]
+  url = your_snipeit_api_url
+  access_token = your_snipeit_api_token
+  ```
+- Replace `your_snipeit_api_url` and `your_snipeit_api_token` with your actual Snipe-IT instance's API URL and token.
 
 ## Usage
 
-Run the script from the command line using one of the following commands:
-
-- `python snipey.py watch`
-
-  This command will fetch the current status of the assets and keep watching for any changes in the asset status. It will display a message whenever there is a change in the status of any asset.
-
-- `python snipey.py status`
-
-  This command will fetch and print the current status of all assets.
-
-- `python snipey.py checkin <asset_id>`
-
-  This command will check-in the asset with the given asset_id.
-
-- `python snipey.py checkout <asset_id>`
-
-  This command will checkout the asset with the given asset_id.
-
-## Requirements
-
-This tool requires Python 3 and the following Python libraries:
-
-- `requests`
-- `urllib3`
-- `configparser`
-- `time`
-- `sys`
-
-Use pip to install any missing libraries.
-
-```bash
-pip install requests urllib3 configparser
 ```
+python snipey.py [command] [args]
+```
+
+### Available Commands
+
+- `watch`: Monitor the status of assets in real-time
+- `status`: Show the status of all assets
+- `ci <asset_id>`: Check-in an asset
+- `co <asset_id>`: Check-out an asset
+
+### Examples
+
+Show the status of all assets:
+```
+python snipey.py status
+```
+
+Check in an asset:
+```
+python snipey.py ci 123
+```
+
+Check out an asset:
+```
+python snipey.py co 123
+```
+
+Watch for real-time changes in asset status:
+```
+python snipey.py watch
+```
+
+## License
+
+This project is open-source and available under the [MIT License](LICENSE).
 
