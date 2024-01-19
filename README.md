@@ -1,6 +1,6 @@
 # Snipey the SnipeIT Commander
 
-Snipey is a command-line tool to interact with the Snipe-IT asset management system. It provides functionalities for checking in, checking out, and viewing the status of assets.
+Snipey is a command-line tool to interact with the Snipe-IT asset management system. It provides functionalities for checking in, checking out, viewing the status, and watching the live status of assets.
 
 ## Features
 
