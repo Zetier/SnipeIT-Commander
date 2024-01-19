@@ -3,6 +3,7 @@ import requests
 import urllib3
 import configparser
 import time
+from datetime import datetime
 
 # stupid youre not secure error supression nothing to see here
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -83,7 +84,7 @@ def watch(api_base_url, api_token):
         try:
             response = requests.get(api_url, headers={"Authorization": f"Bearer {api_token}"}, params=params, verify=False)
         except:
-            print("Error in request--are you connected to the right network? did you go to the right place in teh .config?")
+            print("DISCONNECTED")
             sys.exit(1)
         if response.status_code == 200:
             return response.json().get('rows', [])
@@ -97,6 +98,15 @@ def watch(api_base_url, api_token):
             assigned_to = asset.get('assigned_to')
             checkout_person = assigned_to.get('name', 'Not Checked Out') if assigned_to else ''
             print(f"{asset_id:<3} {asset_tag:<20} {checkout_person:<15}")
+    #second function for the updates in slightly different ofrmat
+    def print_asset_status2(assets):
+        for asset in assets:
+            asset_id = asset.get('id', 'Unknown ID')
+            asset_tag = asset.get('asset_tag', 'Unknown Tag')
+            assigned_to = asset.get('assigned_to')
+            checkout_person = assigned_to.get('username', 'Not Checked Out') if assigned_to else ''
+            print(f"{asset_tag} {checkout_person}")
+
     initial_status = fetch_current_status()
     print_asset_status(initial_status)
     last_status = {asset['id']: asset.get('assigned_to') for asset in initial_status}
@@ -107,15 +117,17 @@ def watch(api_base_url, api_token):
             current_status_dict = {asset['id']: asset.get('assigned_to') for asset in current_status}
             for asset_id, assigned_to in current_status_dict.items():
                 if asset_id in last_status and assigned_to != last_status[asset_id]:
-                    print(f"Status changed for Asset ID: {asset_id}")
-                    print_asset_status([asset for asset in current_status if asset['id'] == asset_id])
+                    current_time = datetime.now().strftime("%a %d-%b-%Y %I:%M %p")
+                    print(f"{current_time}: ", end='')
+                    print_asset_status2([asset for asset in current_status if asset['id'] == asset_id])
             last_status = current_status_dict
     except KeyboardInterrupt:
         print("goodybye world")
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python snipey.py [watch|status|checkin|checkout] [args]")
+        print("Usage: python snipey.py [watch|status|ci|co] [args]")
+        print("ci and co are short for checkin and checkout")
         sys.exit(1)
     user_id, api_base_url, api_token = read_config()
     command = sys.argv[1]
@@ -123,12 +135,12 @@ def main():
         watch(api_base_url, api_token)
     elif command == "status":
         status(api_base_url, api_token)
-    elif command == "checkin":
+    elif command == "ci":
         if len(sys.argv) != 3:
             print("Usage: python snipey.py checkin <asset_id>")
             sys.exit(1)
         checkin(api_base_url, api_token, sys.argv[2], user_id)
-    elif command == "checkout":
+    elif command == "co":
         if len(sys.argv) != 3:
             print("Usage: python snipey.py checkout <asset_id>")
             sys.exit(1)
