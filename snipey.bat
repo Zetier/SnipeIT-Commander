@@ -1,0 +1,2 @@
+@python snipey.py %*
+
