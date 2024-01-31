@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import sys
 import requests
 import urllib3
@@ -19,6 +21,9 @@ def get_user_id(api_base_url, api_token):
         else:
             print(f"Error: Unable to retrieve user ID. Status Code: {response.status_code}")
             sys.exit(1)
+    except requests.exceptions.ConnectionError:
+        print(f"Error: Unable to connect to {api_base_url}. Please check the URL and your network connection.")
+        sys.exit(1)
     except Exception as e:
         print(f"Error in request: {e}")
         sys.exit(1)
@@ -61,9 +66,12 @@ def status(api_base_url, api_token):
     api_url = f"{api_base_url}"
     params = {"limit": 500, "offset": 0}
     try:
-        response = requests.get(api_url, headers={"Authorization": f"Bearer {api_token}"}, params=params, verify=False)
-    except:
-        print("Error in request--are you connected to the right network? did you go to the right place in teh .config?")
+        response = requests.get(api_url, headers={"Authorization": f"Bearer {api_token}"}, params=params, verify=False, timeout=2)
+    except requests.exceptions.ConnectionError:
+        print(f"Error: Unable to connect to {api_base_url}. Please check the URL and your network connection.")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error in request: {e}")
         sys.exit(1)
     if response.status_code == 200:
         data = response.json()
